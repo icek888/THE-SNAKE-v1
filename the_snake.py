@@ -78,7 +78,7 @@ class Apple(GameObject):
         """Установка случайной позиции для яблока."""
         self.position = (
             randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-            randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
+            randint(0, GRID_HEIGHT - 1) * GRID_SIZE
         )
 
     def draw(self, surface):
@@ -116,13 +116,19 @@ class Snake(GameObject):
             surface: Поверхность для отрисовки.
         """
         for position in self.positions:
-            rect = pygame.Rect((position[0], position[1]), (GRID_SIZE, GRID_SIZE))
+            rect = pygame.Rect(
+                (position[0], position[1]),
+                (GRID_SIZE, GRID_SIZE)
+            )
             pygame.draw.rect(surface, self.body_color, rect)
             pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
         # Затирание последнего сегмента
         if self.last:
-            last_rect = pygame.Rect((self.last[0], self.last[1]), (GRID_SIZE, GRID_SIZE))
+            last_rect = pygame.Rect(
+                (self.last[0], self.last[1]),
+                (GRID_SIZE, GRID_SIZE)
+            )
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
 
     def move(self):
