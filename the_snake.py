@@ -133,6 +133,22 @@ class Snake(GameObject):
 
         return True
 
+    def get_head_position(self):
+        """
+        Получение позиции головы змейки.
+
+        Returns:
+            tuple: Позиция головы змейки.
+        """
+        return self.positions[0]
+
+    def reset(self):
+        """Сброс состояния змейки."""
+        self.length = 1
+        self.positions = [(320, 240)]
+        self.direction = choice([UP, DOWN, LEFT, RIGHT])
+        self.next_direction = None
+
     def draw(self, surface):
         """
         Отрисовка змейки.
@@ -209,8 +225,6 @@ def handle_game_logic(snake, apple):
         snake.length += 1
         apple.randomize_position()
 
-    return False
-
 
 def update_display(screen, snake, apple):
     """
@@ -247,8 +261,8 @@ def main():
         if game_over:
             if handle_game_over(screen):
                 # При перезапуске игры сбрасываем состояние змейки и яблока
-                snake = Snake()
-                apple = Apple()
+                snake.reset()
+                apple.randomize_position()
 
 
 if __name__ == "__main__":
