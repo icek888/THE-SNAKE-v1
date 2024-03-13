@@ -20,7 +20,6 @@ RIGHT = (1, 0)
 # Цвета:
 WHITE = (255, 255, 255)
 BOARD_BACKGROUND_COLOR = (0, 0, 0)
-BORDER_COLOR = (93, 216, 228)
 APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
@@ -41,11 +40,23 @@ class GameObject:
     """Базовый класс для игровых объектов."""
 
     def __init__(self, position=(0, 0), body_color=WHITE):
+        """
+        Инициализация объекта.
+
+        Args:
+            position (tuple): Позиция объекта на экране.
+            body_color (tuple): Цвет объекта.
+        """
         self.position = position
         self.body_color = body_color
 
     def draw(self, surface):
-        """Отрисовка объекта."""
+        """
+        Отрисовка объекта.
+
+        Args:
+            surface: Поверхность для отрисовки.
+        """
         pass
 
 
@@ -53,6 +64,7 @@ class Apple(GameObject):
     """Класс для представления яблока."""
 
     def __init__(self):
+        """Инициализация яблока."""
         super().__init__(body_color=APPLE_COLOR)
         self.randomize_position()
 
@@ -64,7 +76,12 @@ class Apple(GameObject):
         )
 
     def draw(self, surface):
-        """Отрисовка яблока."""
+        """
+        Отрисовка яблока.
+
+        Args:
+            surface: Поверхность для отрисовки.
+        """
         pygame.draw.rect(
             surface, self.body_color, (*self.position, GRID_SIZE, GRID_SIZE)
         )
@@ -74,6 +91,7 @@ class Snake(GameObject):
     """Класс для представления змейки."""
 
     def __init__(self):
+        """Инициализация змейки."""
         super().__init__(body_color=SNAKE_COLOR)
         self.length = 1
         self.positions = [(320, 240)]
@@ -81,7 +99,12 @@ class Snake(GameObject):
         self.next_direction = None
 
     def update_direction(self, direction):
-        """Обновление направления движения змейки."""
+        """
+        Обновление направления движения змейки.
+
+        Args:
+            direction (tuple): Новое направление движения.
+        """
         if direction != tuple(map(lambda x: -x, self.direction)):
             self.next_direction = direction
 
@@ -111,7 +134,12 @@ class Snake(GameObject):
         return True
 
     def draw(self, surface):
-        """Отрисовка змейки."""
+        """
+        Отрисовка змейки.
+
+        Args:
+            surface: Поверхность для отрисовки.
+        """
         for position in self.positions:
             pygame.draw.rect(
                 surface, self.body_color, (*position, GRID_SIZE, GRID_SIZE)
@@ -119,7 +147,12 @@ class Snake(GameObject):
 
 
 def handle_game_over(screen):
-    """Обработка конца игры."""
+    """
+    Обработка конца игры.
+
+    Args:
+        screen: Поверхность игрового окна.
+    """
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over! Press Space to Play Again", True, WHITE)
     text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -136,51 +169,82 @@ def handle_game_over(screen):
                 sys.exit()
 
 
+def handle_events(snake):
+    """
+    Обработка событий клавиатуры.
+
+    Args:
+        snake (Snake): Экземпляр класса Snake.
+    """
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                snake.update_direction(UP)
+            elif event.key == pygame.K_DOWN:
+                snake.update_direction(DOWN)
+            elif event.key == pygame.K_LEFT:
+                snake.update_direction(LEFT)
+            elif event.key == pygame.K_RIGHT:
+                snake.update_direction(RIGHT)
+
+
+def handle_game_logic(snake, apple):
+    """
+    Обработка игровой логики.
+
+    Args:
+        snake (Snake): Экземпляр класса Snake.
+        apple (Apple): Экземпляр класса Apple.
+    """
+    if not snake.move():
+        return True
+
+    if snake.position == apple.position:
+        snake.length += 1
+        apple.randomize_position()
+
+
+def update_display(screen, snake, apple):
+    """
+    Обновление отображения.
+
+    Args:
+        screen: Поверхность для отрисовки.
+        snake (Snake): Экземпляр класса Snake.
+        apple (Apple): Экземпляр класса Apple.
+    """
+    screen.fill(BOARD_BACKGROUND_COLOR)
+    snake.draw(screen)
+    apple.draw(screen)
+    pygame.display.update()
+
+
 def main():
-    """Главная функция для запуска игры "Змейка"."""
+    """Основная функция игры."""
     snake = Snake()
     apple = Apple()
 
     game_over = False
 
     while not game_over:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    snake.update_direction(UP)
-                elif event.key == pygame.K_DOWN:
-                    snake.update_direction(DOWN)
-                elif event.key == pygame.K_LEFT:
-                    snake.update_direction(LEFT)
-                elif event.key == pygame.K_RIGHT:
-                    snake.update_direction(RIGHT)
+        handle_events(snake)
+        game_over = handle_game_logic(snake, apple)
+        update_display(screen, snake, apple)
 
-        screen.fill(BOARD_BACKGROUND_COLOR)
-
-        if not snake.move():
-            game_over = True
-
-        snake.draw(screen)
-
-        if snake.position == apple.position:
-            snake.length += 1
-            apple.randomize_position()
-
-        apple.draw(screen)
-
-        pygame.display.update()
         clock.tick(SPEED)
+        if clock.get_fps() < SPEED:
+            delay = 1000 // SPEED
+            pygame.time.delay(delay)  # Делаем паузу для соблюдения скорости
 
         if game_over:
             if handle_game_over(screen):
                 # При перезапуске игры сбрасываем состояние змейки и яблока
                 snake = Snake()
                 apple = Apple()
-                game_over = False  # Сброс флага завершения игры
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
