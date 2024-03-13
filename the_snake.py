@@ -119,7 +119,7 @@ class Snake(GameObject):
 
 
 def handle_game_over(screen):
-    '''Обработка конца игры.'''
+    """Обработка конца игры."""
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over! Press Space to Play Again", True, WHITE)
     text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -137,6 +137,7 @@ def handle_game_over(screen):
 
 
 def main():
+    """Главная функция для запуска игры "Змейка"."""
     snake = Snake()
     apple = Apple()
 
@@ -181,5 +182,5 @@ def main():
                 game_over = False  # Сброс флага завершения игры
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
