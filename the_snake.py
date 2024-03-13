@@ -1,5 +1,4 @@
 from random import choice, randint
-
 import pygame
 import sys
 
@@ -18,16 +17,11 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-# Цвет фона - черный:
+# Цвета:
+WHITE = (255, 255, 255)
 BOARD_BACKGROUND_COLOR = (0, 0, 0)
-
-# Цвет границы ячейки
 BORDER_COLOR = (93, 216, 228)
-
-# Цвет яблока
 APPLE_COLOR = (255, 0, 0)
-
-# Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
@@ -43,39 +37,42 @@ pygame.display.set_caption("Змейка")
 clock = pygame.time.Clock()
 
 
-# Базовый класс для игровых объектов
 class GameObject:
-    def __init__(self, position=(0, 0), body_color=(255, 255, 255)):
+    """Базовый класс для игровых объектов."""
+
+    def __init__(self, position=(0, 0), body_color=WHITE):
         self.position = position
         self.body_color = body_color
 
-    # Отрисовка объекта
     def draw(self, surface):
+        """Отрисовка объекта."""
         pass
 
 
-# Класс для представления яблока
 class Apple(GameObject):
+    """Класс для представления яблока."""
+
     def __init__(self):
         super().__init__(body_color=APPLE_COLOR)
         self.randomize_position()
 
-    # Установка случайной позиции для яблока
     def randomize_position(self):
+        """Установка случайной позиции для яблока."""
         self.position = (
             randint(0, GRID_WIDTH - 1) * GRID_SIZE,
             randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
         )
 
-    # Отрисовка яблока
     def draw(self, surface):
+        """Отрисовка яблока."""
         pygame.draw.rect(
             surface, self.body_color, (*self.position, GRID_SIZE, GRID_SIZE)
         )
 
 
-# Класс для представления змейки
 class Snake(GameObject):
+    """Класс для представления змейки."""
+
     def __init__(self):
         super().__init__(body_color=SNAKE_COLOR)
         self.length = 1
@@ -83,13 +80,13 @@ class Snake(GameObject):
         self.direction = choice([UP, DOWN, LEFT, RIGHT])
         self.next_direction = None
 
-    # Обновление направления движения змейки
     def update_direction(self, direction):
+        """Обновление направления движения змейки."""
         if direction != tuple(map(lambda x: -x, self.direction)):
             self.next_direction = direction
 
-    # Обновление позиции змейки
     def move(self):
+        """Обновление позиции змейки."""
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
@@ -98,7 +95,6 @@ class Snake(GameObject):
         x += self.direction[0] * GRID_SIZE
         y += self.direction[1] * GRID_SIZE
 
-        # Обработка выхода за границы поля
         x %= SCREEN_WIDTH
         y %= SCREEN_HEIGHT
 
@@ -108,14 +104,36 @@ class Snake(GameObject):
         if len(self.positions) > self.length:
             self.positions.pop()
 
+        # Проверка столкновения с собой
+        if self.position in self.positions[1:]:
+            return False  # Завершение игры
+
         return True
 
-    # Отрисовка змейки
     def draw(self, surface):
+        """Отрисовка змейки."""
         for position in self.positions:
             pygame.draw.rect(
                 surface, self.body_color, (*position, GRID_SIZE, GRID_SIZE)
             )
+
+
+def handle_game_over(screen):
+    '''Обработка конца игры.'''
+    font = pygame.font.Font(None, 36)
+    text = font.render("Game Over! Press Space to Play Again", True, WHITE)
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.update()
+    # Ожидание нажатия клавиши "Space" для перезапуска игры
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return True
+            elif event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
 
 def main():
@@ -157,7 +175,10 @@ def main():
 
         if game_over:
             if handle_game_over(screen):
-                main()
+                # При перезапуске игры сбрасываем состояние змейки и яблока
+                snake = Snake()
+                apple = Apple()
+                game_over = False  # Сброс флага завершения игры
 
 
 if __name__ == "__main__":
