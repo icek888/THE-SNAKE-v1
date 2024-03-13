@@ -198,6 +198,9 @@ def handle_game_logic(snake, apple):
     Args:
         snake (Snake): Экземпляр класса Snake.
         apple (Apple): Экземпляр класса Apple.
+
+    Returns:
+        bool: Флаг завершения игры.
     """
     if not snake.move():
         return True
@@ -205,6 +208,8 @@ def handle_game_logic(snake, apple):
     if snake.position == apple.position:
         snake.length += 1
         apple.randomize_position()
+
+    return False
 
 
 def update_display(screen, snake, apple):
