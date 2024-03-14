@@ -2,8 +2,6 @@ from random import choice, randint
 import pygame
 import sys
 
-# Инициализация PyGame:
-pygame.init()
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -193,6 +191,7 @@ def handle_keys(game_object):
 
 def main():
     """Основная функция игры."""
+    pygame.init()
     snake = Snake()
     apple = Apple()
 
