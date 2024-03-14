@@ -36,7 +36,7 @@ SPEED = 20
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
 # Заголовок окна игрового поля:
-pygame.display.set_caption('Змейка')
+pygame.display.set_caption("Змейка")
 
 # Настройка времени:
 clock = pygame.time.Clock()
@@ -78,7 +78,7 @@ class Apple(GameObject):
         """Установка случайной позиции для яблока."""
         self.position = (
             randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-            randint(0, GRID_HEIGHT - 1) * GRID_SIZE
+            randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
         )
 
     def draw(self, surface):
@@ -88,10 +88,9 @@ class Apple(GameObject):
         Args:
             surface: Поверхность для отрисовки.
         """
-        rect = pygame.Rect(
-            (self.position[0], self.position[1]),
-            (GRID_SIZE, GRID_SIZE)
-        )
+        rect = pygame.Rect((self.position[0], self.position[1]),
+                           (GRID_SIZE, GRID_SIZE)
+                           )
         pygame.draw.rect(surface, self.body_color, rect)
         pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
@@ -102,11 +101,7 @@ class Snake(GameObject):
     def __init__(self):
         """Инициализация змейки."""
         super().__init__(body_color=SNAKE_COLOR)
-        self.length = 1
-        self.positions = [(320, 240)]
-        self.direction = choice([UP, DOWN, LEFT, RIGHT])
-        self.next_direction = None
-        self.last = None  # Добавим переменную для хранения последней позиции
+        self.reset()  # Вызываем метод reset для установки начальных параметров
 
     def draw(self, surface):
         """
@@ -124,9 +119,9 @@ class Snake(GameObject):
 
         # Затирание последнего сегмента
         if self.last:
-            last_rect = pygame.Rect((self.last[0], self.last[1]),
-                                    (GRID_SIZE, GRID_SIZE)
-                                    )
+            last_rect = pygame.Rect(
+                (self.last[0], self.last[1]), (GRID_SIZE, GRID_SIZE)
+            )
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
 
     def move(self):
@@ -141,6 +136,7 @@ class Snake(GameObject):
         x += self.direction[0] * GRID_SIZE
         y += self.direction[1] * GRID_SIZE
 
+        # Проверяем на выход за границу экрана
         x %= SCREEN_WIDTH
         y %= SCREEN_HEIGHT
 
@@ -220,5 +216,5 @@ def main():
         pygame.display.update()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
